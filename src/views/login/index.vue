@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <el-form ref="formRef" :model="form" class="login-form">
+    <el-form ref="formRef" :model="form" class="login-form" :rules="rules">
       <div class="title-container">
         <h3 class="title">用户登录</h3>
       </div>
@@ -24,12 +24,56 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
+import { useStore } from 'vuex'
+const store = useStore()
 const form = ref({
-  name: '',
-  password: ''
+  username: 'admin',
+  password: '123456'
 })
-
+const passwordType = ref('password')
+const changeType = () => {
+  if (passwordType.value === 'password') {
+    passwordType.value = 'text'
+  } else {
+    passwordType.value = 'password'
+  }
+}
+const rules = reactive({
+  username: [
+    {
+      required: true,
+      message: '请输入用户名',
+      trigger: 'blur'
+    },
+    {
+      min: 3,
+      max: 5,
+      message: '长度为3-5',
+      trigger: 'blur'
+    }
+  ],
+  password: [
+    {
+      required: true,
+      message: '请输入密码',
+      trigger: 'blur'
+    }
+  ]
+})
+const formRef = ref(null)
+const handleLogin = () => {
+  formRef.value.validate(async (valid) => {
+    if (valid) {
+      // const res = await login(form.value)
+      // console.log(res)
+      store.dispatch('app/login', form.value)
+    } else {
+      console.log('error')
+      return false
+    }
+  })
+}
 </script>
 
 <style lang="scss" scoped>
